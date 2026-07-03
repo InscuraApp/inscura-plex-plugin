@@ -1,0 +1,44 @@
+[
+  {
+    "id": "api_url",
+    "type": "text",
+    "label": "Inscura API URL",
+    "summary": "Base URL of the running Inscura Local API service.",
+    "default": "http://127.0.0.1:28687"
+  },
+  {
+    "id": "api_token",
+    "type": "text",
+    "label": "Inscura API Token",
+    "summary": "Leave empty when the Inscura API service uses authMode=none.",
+    "default": ""
+  },
+  {
+    "id": "search_limit",
+    "type": "text",
+    "label": "Search result limit",
+    "summary": "Maximum candidates requested from Inscura per search term.",
+    "default": "20"
+  },
+  {
+    "id": "minimum_automatic_score",
+    "type": "text",
+    "label": "Minimum automatic match score",
+    "summary": "Candidates below this score are ignored during automatic matching.",
+    "default": "65"
+  },
+  {
+    "id": "import_collections",
+    "type": "bool",
+    "label": "Import Inscura collections",
+    "summary": "When disabled, Plex collections are left unchanged.",
+    "default": true
+  },
+  {
+    "id": "clear_existing_collections",
+    "type": "bool",
+    "label": "Replace Plex collections",
+    "summary": "When collection import is enabled, replace existing Plex collections with Inscura collection and series terms.",
+    "default": false
+  }
+]

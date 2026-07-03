@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>English</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.plexapp.agents.inscura</string>
+  <key>CFBundleName</key>
+  <string>Inscura</string>
+  <key>CFBundlePackageType</key>
+  <string>BNDL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>0.1.0</string>
+  <key>CFBundleVersion</key>
+  <string>0.1.0</string>
+  <key>PlexFrameworkVersion</key>
+  <string>2</string>
+  <key>PlexPluginClass</key>
+  <string>Agent</string>
+  <key>PlexPluginCodePolicy</key>
+  <string>Elevated</string>
+  <key>PlexPluginMode</key>
+  <string>AlwaysOn</string>
+</dict>
+</plist>

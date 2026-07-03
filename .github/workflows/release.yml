@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read plugin version
+        id: version
+        run: |
+          VERSION=$(grep -A1 'CFBundleShortVersionString' Inscura.bundle/Contents/Info.plist | tail -1 | sed -E 's/.*<string>([^<]+)<\/string>.*/\1/' | tr -d '[:space:]')
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build release archive
+        run: |
+          zip -r "inscura-plex-plugin-${{ steps.version.outputs.value }}-build.${{ github.run_number }}.zip" \
+            "Inscura.bundle" \
+            "Inscura Scanner.py"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.value }}-build.${{ github.run_number }}
+          name: v${{ steps.version.outputs.value }} (build ${{ github.run_number }})
+          body: |
+            Automated release from commit ${{ github.sha }}.
+
+            ## Install
+
+            Extract the zip and copy:
+            - `Inscura.bundle` → `Plex data directory/Plug-ins/`
+            - `Inscura Scanner.py` → `Plex data directory/Scanners/Movies/`
+          files: |
+            inscura-plex-plugin-${{ steps.version.outputs.value }}-build.${{ github.run_number }}.zip
+          generate_release_notes: true
