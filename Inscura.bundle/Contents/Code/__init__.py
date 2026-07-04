@@ -13,9 +13,22 @@ def Start():
     Log.Info("Inscura metadata agent started")
 
 
+def supported_languages():
+    names = ["Chinese", "English", "Japanese", "Korean", "NoLanguage"]
+    languages = []
+    for name in names:
+        try:
+            language = getattr(Locale.Language, name)
+        except Exception:
+            continue
+        if language not in languages:
+            languages.append(language)
+    return languages or [Locale.Language.NoLanguage]
+
+
 class InscuraMovieAgent(Agent.Movies):
     name = "Inscura"
-    languages = [Locale.Language.NoLanguage]
+    languages = supported_languages()
     primary_provider = True
     accepts_from = ["com.plexapp.agents.localmedia"]
 
@@ -47,7 +60,7 @@ class InscuraMovieAgent(Agent.Movies):
                 ))
                 rank = rank + 1
 
-    def update(self, metadata, media, lang=None, force=False, **kwargs):
+    def update(self, metadata, media, lang=None, force=False, prefs=None, **kwargs):
         media_id = extract_media_id(text(metadata.id))
         if not media_id:
             return
@@ -63,7 +76,7 @@ class InscuraMovieAgent(Agent.Movies):
         credits = detail.get("credits") or {}
 
         apply_core_metadata(metadata, detail, metas, terms)
-        apply_taxonomies(metadata, metas, terms)
+        apply_taxonomies(metadata, metas, terms, prefs)
         apply_people(metadata, credits)
         apply_artwork(metadata, detail.get("assets") or [])
 
@@ -157,12 +170,29 @@ def pref_text(key, default=""):
 
 def pref_bool(key, default=False):
     try:
-        value = Prefs[key]
-        if isinstance(value, basestring):
-            return value.strip().lower() in ("1", "true", "yes", "on")
-        return bool(value)
+        return bool_value(Prefs[key], default)
     except Exception:
         return default
+
+
+def pref_bool_from(prefs, key, default=False):
+    try:
+        if prefs is not None and key in prefs:
+            return bool_value(prefs[key], default)
+    except Exception:
+        pass
+    return pref_bool(key, default)
+
+
+def bool_value(value, default=False):
+    if value is None:
+        return default
+    try:
+        if isinstance(value, basestring):
+            return value.strip().lower() in ("1", "true", "yes", "on")
+    except Exception:
+        pass
+    return bool(value)
 
 
 def pref_int(key, default):
@@ -438,7 +468,7 @@ def apply_release_date(metadata, value):
         pass
 
 
-def apply_taxonomies(metadata, metas, terms):
+def apply_taxonomies(metadata, metas, terms, prefs=None):
     replace_tag_set(metadata, "genres", term_names(terms, ["genre"]))
     replace_tag_set(metadata, "countries", split_values(meta_value(metas, ["production_countries", "origin_countries", "country"])))
 
@@ -449,11 +479,11 @@ def apply_taxonomies(metadata, metas, terms):
         push(tags, value)
     replace_tag_set(metadata, "tags", tags)
 
-    if pref_bool("import_collections", True):
+    if pref_bool_from(prefs, "import_collections", True):
         collections = term_names(terms, ["collection"])
         for value in term_names(terms, ["series"]):
             push(collections, value)
-        if pref_bool("clear_existing_collections", False):
+        if pref_bool_from(prefs, "clear_existing_collections", False):
             replace_tag_set(metadata, "collections", collections)
         else:
             add_tag_values(metadata, "collections", collections)
